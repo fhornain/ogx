@@ -33,8 +33,9 @@ WORKDIR /home/ogxuser
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/home/ogxuser/.local/bin:${PATH}"
 
-# Install OGX with the starter distribution packages
-RUN uv pip install --user "ogx[starter]"
+# FIX: Changed '--user' to '--system'. 
+# This tells uv to bypass virtualenv checks since we are safe inside a container.
+RUN uv pip install --system "ogx[starter]"
 
 # Expose the default OGX API server port
 EXPOSE 8321
