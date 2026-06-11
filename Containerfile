@@ -1,11 +1,11 @@
 # ==============================================================================
-# Base Stage: Using Fedora 43
+# Base Stage: Using Fedora 44
 # ==============================================================================
-FROM registry.fedoraproject.org/fedora:43
+FROM registry.fedoraproject.org/fedora:44
 
 LABEL maintainer="AI Developer" \
       description="OGX (Open GenAI Stack) Server running on macOS via Podman" \
-      version="1.2"
+      version="1.3"
 
 # Set environment variables to optimize Python/Pip behavior inside the container
 ENV PYTHONUNBUFFERED=1 \
@@ -13,19 +13,18 @@ ENV PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     HOME=/home/ogxuser
 
-# 1. Install system dependencies (Runs as root by default)
+# 1. Install system dependencies (Runs as root)
 RUN dnf update -y && dnf install -y \
     python3 \
     python3-pip \
-    curl \
     git \
     shadow-utils \
     && dnf clean all
 
-# 2. Install 'uv' globally so any user can access it
-RUN curl -LsSf https://astral.sh/uv/install.sh | BINDIR=/usr/local/bin sh
+# 2. Install 'uv' using pip to guarantee it is in the system PATH
+RUN pip install --break-system-packages uv
 
-# 3. Install OGX system-wide (Still as root, so it has write permissions)
+# 3. Install OGX system-wide using uv
 RUN uv pip install --system "ogx[starter]"
 
 # 4. Create the non-root user and set up their home directory
