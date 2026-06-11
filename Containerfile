@@ -1,7 +1,7 @@
 # ==============================================================================
 # Base Stage: Using Fedora 44
 # ==============================================================================
-FROM registry.fedoraproject.org/fedora:44
+FROM --platform=linux/aarch64 registry.fedoraproject.org/fedora:44
 
 LABEL maintainer="AI Developer" \
       description="OGX (Open GenAI Stack) Server on Fedora 43" \
