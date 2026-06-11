@@ -4,7 +4,7 @@
 FROM --platform=linux/aarch64 registry.fedoraproject.org/fedora:44
 
 LABEL maintainer="AI Developer" \
-      description="OGX (Open GenAI Stack) Server on Fedora 43" \
+      description="OGX (Open GenAI Stack) Server on Fedora 44" \
       version="1.0"
 
 # Set environment variables to optimize Python/Pip behavior inside the container
