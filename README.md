@@ -1,4 +1,4 @@
-#OGX on Fedora 44
+# OGX on Fedora 44
 
 ```bash
 podman build -t fedora43-ogx:latest .
