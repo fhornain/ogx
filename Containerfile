@@ -1,11 +1,11 @@
 # ==============================================================================
-# Base Stage: Using Fedora 44
+# Base Stage: Using Fedora 43
 # ==============================================================================
-FROM registry.fedoraproject.org/fedora:44
+FROM registry.fedoraproject.org/fedora:43
 
 LABEL maintainer="AI Developer" \
       description="OGX (Open GenAI Stack) Server running on macOS via Podman" \
-      version="1.3"
+      version="1.4"
 
 # Set environment variables to optimize Python/Pip behavior inside the container
 ENV PYTHONUNBUFFERED=1 \
@@ -24,12 +24,15 @@ RUN dnf update -y && dnf install -y \
 # 2. Install 'uv' using pip to guarantee it is in the system PATH
 RUN pip install --break-system-packages uv
 
-# 3. Install OGX system-wide using uv
-RUN uv pip install --system "ogx[starter]"
-
-# 4. Create the non-root user and set up their home directory
+# 3. Create the non-root user and set up their home directory
 RUN useradd -m -s /bin/bash ogxuser
 WORKDIR /home/ogxuser
+
+# 4. Install OGX system-wide using uv
+RUN uv pip install --system "ogx[starter]"
+
+# FIX: Change ownership of the home directory (and any uv cache files created) to ogxuser
+RUN chown -R ogxuser:ogxuser /home/ogxuser
 
 # 5. Switch to the non-root user for runtime security compliance
 USER ogxuser
