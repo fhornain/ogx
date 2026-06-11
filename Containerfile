@@ -1,11 +1,11 @@
 # ==============================================================================
-# Base Stage: Using Fedora 44
+# Base Stage: Using Fedora 43
 # ==============================================================================
-FROM --platform=linux/aarch64 registry.fedoraproject.org/fedora:44
+FROM registry.fedoraproject.org/fedora:43
 
 LABEL maintainer="AI Developer" \
-      description="OGX (Open GenAI Stack) Server on Fedora 44" \
-      version="1.0"
+      description="OGX (Open GenAI Stack) Server running on macOS via Podman" \
+      version="1.2"
 
 # Set environment variables to optimize Python/Pip behavior inside the container
 ENV PYTHONUNBUFFERED=1 \
@@ -13,7 +13,7 @@ ENV PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     HOME=/home/ogxuser
 
-# Install system dependencies needed for Python, UV, and OGX tools
+# 1. Install system dependencies (Runs as root by default)
 RUN dnf update -y && dnf install -y \
     python3 \
     python3-pip \
@@ -22,24 +22,21 @@ RUN dnf update -y && dnf install -y \
     shadow-utils \
     && dnf clean all
 
-# Create a non-root user for security compliance
-RUN useradd -m -s /bin/bash ogxuser
+# 2. Install 'uv' globally so any user can access it
+RUN curl -LsSf https://astral.sh/uv/install.sh | BINDIR=/usr/local/bin sh
 
-# Switch to the non-root user
-USER ogxuser
+# 3. Install OGX system-wide (Still as root, so it has write permissions)
+RUN uv pip install --system "ogx[starter]"
+
+# 4. Create the non-root user and set up their home directory
+RUN useradd -m -s /bin/bash ogxuser
 WORKDIR /home/ogxuser
 
-# Install 'uv' (modern fast Python package installer) into the user's local path
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/home/ogxuser/.local/bin:${PATH}"
-
-# FIX: Changed '--user' to '--system'. 
-# This tells uv to bypass virtualenv checks since we are safe inside a container.
-RUN uv pip install --system "ogx[starter]"
+# 5. Switch to the non-root user for runtime security compliance
+USER ogxuser
 
 # Expose the default OGX API server port
 EXPOSE 8321
 
 # Initialize and start the OGX starter stack
-# This environment sets up an OpenAI-compatible endpoint locally
 CMD ["uv", "run", "ogx", "stack", "run", "starter"]
