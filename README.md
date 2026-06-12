@@ -21,17 +21,19 @@ ogx stack run ./config.yaml
 
 ```bash
 version: '2'
-distro_name: "local"  # <--- CRITICAL FIX: Tells OGX this is a local user-defined setup
+distro_name: "local"
 
 providers:
   inference:
     - provider_id: "ramalama-backend"
-      provider_type: "remote::openai"  # Tells OGX to look for an external OpenAI API
+      provider_type: "remote::openai"
       config:
-        base_url: "http://localhost:64303/v1"
+        base_url: "http://host.containers.internal:64303/v1"
         api_key: "fake-key"
 
 models:
   - identifier: "ibm-granite/granite-4.0-micro-GGUF"
     provider_id: "ramalama-backend"
+    metadata:
+      model_type: "llm"
 ```
